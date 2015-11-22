@@ -1,2 +1,15 @@
 # Graduacao---codigos
 Repositorio de codigos de programas da graduação
+
+
+section .data
+
+
+
+section .bss
+
+
+section .text
+  global _start
+
+_start:
