@@ -13,6 +13,7 @@ section .data
 section .bss
     nome_arquivo  resb  30    ;armazena o nome do arquivo
     tamanho_nome  resd  1     ;tamanho do nome do arquivo
+    tamanho_arquivo resd 1    ; tamanho do que esta escrito no arquivo quando o sistema le
     info          resb  400   ;vai armazenar o texto digitado pelo usuario
     id_arquivo    resd  1     ;identificardor do arquivo.  usado para trabalhar com arquivos
 
@@ -23,6 +24,7 @@ _start:
         call msg_inicial
         call abre_arquivo
         call mostra_conteudo
+        call escreve_no_arquivo
         
         
 msg_inicial
@@ -68,6 +70,16 @@ mostra_conteudo
     mov ecx, info
     mov edx, 400
     int 80h
+    mov [tamanho_arquivo], eax ;quando leio o arquivo, o tamanho dele, em bytes, fica em eax.  Agora eu tenho, em tamanho_arquivo, o tamanho de tudo que esta escrito.  Isso será util para escrever o que o usuário digitar a partir desse ponto do arquivo.
+    ret
 
-
+escreve_no_arquivo
+    mov eax, 3              ;ler do teclado
+    mov ebx, 0
+    mov ecx, info
+    mov edx, 400
+    int 80h
+    
+   
+	
 
