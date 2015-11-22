@@ -3,11 +3,18 @@ Repositorio de codigos de programas da graduação
 
 
 section .data
-
+  organizatela  db  ' - - - - - - - - - - - - Editor de Texto - - - - - - - - - -  - - -', 10
+  lenorg  equ $-organizatela
+  msg1  db 'Digite o nome do arquivo que deseja editar', 10
+  len1  equ   $-msg1
+  
 
 
 section .bss
-
+    nome_arquivo  resb  30    ;armazena o nome do arquivo
+    tamanho_nome  resd  1     ;tamanho do nome do arquivo
+    info          resb  400   ;vai armazenar o texto digitado pelo usuario
+    id_arquivo    resd  1     ;identificardor do arquivo.  usado para trabalhar com arquivos
 
 section .text
   global _start
