@@ -20,3 +20,54 @@ section .text
   global _start
 
 _start:
+        call msg_inicial
+        call abre_arquivo
+        call mostra_conteudo
+        
+        
+msg_inicial
+    mov	eax, 4	         	;escreve
+	mov	ebx, 1		        ; na tela
+	mov	ecx, organizatela	; msg
+	mov	edx, lenorg	        ;tamanho
+	int 80h
+    mov	eax, 4	         	;escreve
+	mov	ebx, 1		        ; na tela
+	mov	ecx, msg1       	; msg
+	mov	edx, len1	        ;tamanho
+	int 80h
+
+
+abre_arquivo
+    mov eax, 3              ;ler
+    mov ebx, 0
+    mov ecx, nome_arquivo   ;armazenar na variavel nome_arquivo
+    mov edx, 30
+    
+    ;; NESSA PARTE, EU NÃO SEI COMO DECIDIR SE VAI CRIAR UM NOVO ARQUIVO OU ABRIR UM EXISTENTE.  PRECISO VERIFICAR COM O PROFESSOR UMA MANEIRA DE VALIDAR SE UM ARQUIVO JÁ EXISTE
+    
+    ;CRIA UM ARQUIVO COM O NOME ESPECIFICADO
+    mov eax, 8
+    mov ebx, nome_arquivo
+    mov ecx, 0777q
+    int 80h
+    mov [id_arquivo], eax ;apos criar o arquivo, o id fica em eax, nesse caso, eu movo para a variavel id_arquivo
+    
+    ;ABRE O ARQUIVO COM O NOME ESPECIFICADO
+    mov eax, 5
+    mov ebx,nome_arquivo
+    mov ecx, 2
+    mov edx, 0777q
+    int 80h
+    mov [id_arquivo], eax ;apos abrir o arquivo, o id fica em eax, nesse caso, eu movo para a var id_arquivo
+    
+    
+mostra_conteudo
+    mov eax, 3
+    mov ebx, [id_arquivo]
+    mov ecx, info
+    mov edx, 400
+    int 80h
+
+
+
