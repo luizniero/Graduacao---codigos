@@ -85,3 +85,4 @@ escreve_no_arquivo
 	
 fazer um while infinito, e ir comparando com o /. Quando chegar em /, pular para um procedimento que valida isso.
 Eu tento ler um arquivo, mesmo sem saber se ele existe.  Se retornar -1 (ou qualquer < 0), em eax, ele não existe.
+Construir uma variavel buffer que Lê tudo que já havia no arquivo, senão ele perde.
