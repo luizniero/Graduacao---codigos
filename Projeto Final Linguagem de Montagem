@@ -44,9 +44,19 @@ abre_arquivo
     mov eax, 3          		 ;ler
     mov ebx, 0	
     mov ecx, nome_arquiv		 ;armazenar na variavel nome_arquivo
-    mov edx, 30
+    mov edx, 30				 
+ 
+    ;TENTO ABRIR o arquivo com o nome especificado.  Caso não exista, EAX retorna um número negativo.
+    mov eax, 5
+    mov	ebx, nome_arquiv
+    mov	ecx, 2
+    mov edx, 0777q
+    ;SE O ARQUIVO EXISTIR, O INDICE FICA EM EAX, SENAO, EAX É UM NUMERO NEGATIVO.
     
-					 ;; NESSA PARTE, EU NÃO SEI COMO DECIDIR SE VAI CRIAR UM NOVO ARQUIVO OU ABRIR UM EXISTENTE.  PRECISO VERIFICAR COM O PROFESSOR UMA MANEIRA DE VALIDAR SE UM ARQUIVO JÁ EXISTE
+    
+    
+ 
+ 
     
     ;CRIA UM ARQUIVO COM O NOME ESPECIFICADO
     mov eax, 8
