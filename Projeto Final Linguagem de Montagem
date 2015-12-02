@@ -1,5 +1,3 @@
-# Graduacao---codigos
-Repositorio de codigos de programas da graduaÃ§Ã£o
 
 
 section .data
@@ -13,14 +11,13 @@ section .data
 
 
 section .bss
-    nome_arquivo        resb  3		  ;armazena o nome do arquivo
-    tamanho_nome        resd  		  ;tamanho do nome do arquivo
-    tamanho_arquivo     resd 		  ; tamanho do que esta escrito no arquivo quando o sistema le
-    info                resb  40		   ;vai armazenar o texto digitado pelo usuario
-    id_arquivo          res              ;didentificardor do arquivo.  usado para trabalhar com arquivos  
-	info            	resb 400 
-	buffer	resb    	3000		 ;vai armazenar todo o conteudo do arquivo quando for aberto
-	tamanho_texto   	resd		;tamanho do texto de entrada
+    nomearquivo  		resb  3		  ;armazena o nome do arquivo
+    tamanhonome 		resd  1		  ;tamanho do nome do arquivo
+    tamanhoarquivo 		resd  1 	  ; tamanho do que esta escrito no arquivo quando o sistema le
+    info          		resb  400	  ;vai armazenar o texto digitado pelo usuario
+    idarquivo    		resd  1           ;didentificardor do arquivo.  usado para trabalhar com arquivos  
+    buffer			resb 3000	  ;vai armazenar todo o conteudo do arquivo quando for aberto
+    tamanhotexto		resd  1 	  ;tamanho do texto de entrada
 
 section .text
   global _start
@@ -30,16 +27,16 @@ _start:
         call abre_arquivo
         call mostra_conteudo
         call escreve_no_arquivo
-	    call fim
+	call fim
         
         
-msg_inicial
-	mov	eax, 4	         	;escreve
+msg_inicial:
+	mov	eax, 4	         		;escreve
 	mov	ebx, 1		        ; na tela
 	mov	ecx, organizatela	; msg
 	mov	edx, lenorg	        ;tamanho
 	int 80h
-	mov	eax, 4	         	;escreve
+	mov	eax, 4	         		;escreve
 	mov	ebx, 1		        ; na tela
 	mov	ecx, msg1       	; msg
 	mov	edx, len1	        ;tamanho
@@ -48,56 +45,54 @@ msg_inicial
 
 abre_arquivo:
     mov eax, 3          		 ;ler
-    mov ebx, 0	
-    mov ecx, nome_arquiv		 ;armazenar na variavel nome_arquivo
+    mov ebx, 0				 ;do teclado
+    mov ecx, nomearquivo		 ;armazenar na variavel nomearquivo
     mov edx, 30				 
- 
+    int 80h	 
+
     ;TENTO ABRIR o arquivo com o nome especificado.  Caso nÃ£o exista, EAX retorna um nÃºmero negativo.
     mov eax, 5
-    mov ebx, nome_arquiv
+    mov ebx, nomearquivo
     mov ecx, 2
     mov edx, 0777q
-  				  ;SE O ARQUIVO EXISTIR, O INDICE FICA EM EAX, SENAO, EAX Ã UM NUMERO NEGATIVO.
-   				 ;COMPARO EAX COM 0.  SE FOR MAIOR, PROSSIGO ABRINDO O ARQUIVO, SE FOR MENOR, CRIO O ARQUIVO.
+    int 80h				  ;SE O ARQUIVO EXISTIR, O INDICE FICA EM EAX, SENAO, EAX Ã UM NUMERO NEGATIVO.
+   				 	;COMPARO EAX COM 0.  SE FOR MAIOR, PROSSIGO ABRINDO O ARQUIVO, SE FOR MENOR, CRIO O ARQUIVO.
     cmp eax, 0
     jge  abre_arquivo_existente		;SE EAX FOR MAIOR QUE 0, ENTAO O ARQUIVO JA EXISTE.  DOU UM JUMP PARA ABRE_ARQUIVO:
   				  ; NO CASO DE EAX SER MENOR QUE 0, ENTAO CRIA UM ARQUIVO COM O NOME ESPECIFICADO
     mov eax, 8 ;cria o arquivo
-    mov ebx, nome_arquivo
+    mov ebx, nomearquivo
     mov ecx, 0777q
     int 80h
-    mov [id_arquivo], eax 		;apos criar o arquivo, o id fica em eax, nesse caso, eu movo para a variavel id_arquivo
+    mov [idarquivo], eax 		;apos criar o arquivo, o id fica em eax, nesse caso, eu movo para a variavel idarquivo
     ret
     
    					 ;ABRE O ARQUIVO COM O NOME ESPECIFICADO
 abre_arquivo_existente:
     mov eax, 5
-    mov ebx,nome_arquivo
+    mov ebx,nomearquivo
     mov ecx, 2
     mov edx, 0777q
     int 80h
-    mov [id_arquivo], eax 		;apos abrir o arquivo, o id fica em eax, nesse caso, eu movo para a var id_arquivo
+    mov [idarquivo], eax 		;apos abrir o arquivo, o id fica em eax, nesse caso, eu movo para a var idarquivo
     ret
     
-mostra_conteudo
+mostra_conteudo:
     mov eax, 3	
-    mov ebx, [id_arquivo]
+    mov ebx, [idarquivo]
     mov ecx, buffer
     mov edx, 3000
     int 80h
-    mov [tamanho_arquivo], eax 		;quando leio o arquivo, o tamanho dele, em bytes, fica em eax.  Agora eu tenho, em tamanho_arquivo, o 	
+    mov [tamanhoarquivo], eax 		;quando leio o arquivo, o tamanho dele, em bytes, fica em eax.  Agora eu tenho, em tamanhoarquivo, o 	
 	mov	eax, 4
 	mov	ebx, 1
 	mov	ecx, buffer
-	mov	edx, [tamanho_arquivo]
+	mov	edx, [tamanhoarquivo]
 	int 80h
-
-
-
-    ret					tamanho de tudo que esta escrito.  Isso serÃ¡ util para escrever o que o usuÃ¡rio digitar a partir 						desse ponto do arquivo.
+	ret					
   
 
-escreve_no_arquivo
+escreve_no_arquivo:
  	mov eax, 3           		;ler do teclado
  	mov ebx, 0
 	mov ecx, info
@@ -107,63 +102,60 @@ escreve_no_arquivo
 	mov	ebx, 0			; inicializa o contador
 	mov	ecx, 0			; inicializa o contador
 
-	.for
+	.for:
 		cmp [info+ebx], byte '/'
 		je  .define_operacao
 		inc ebx				;incrementa ebx, vai para o prox caracter do nome do arquivo
 		jmp .for			;volta ao inicio do laco	
 
 	
-	.define_operacao			;Procedimento que valida qual operacao o usuario quer executar
-		cmp [info+ebx], byte 's'
-			je	cmp [info+ebx+1], byte 'l'
-			je	cmp [info+ebx+2], byte 'v'
-			je	cmp [info+ebx+3], byte 'r'
-			je	jmp salvar
+	.define_operacao:			;Procedimento que valida qual operacao o usuario quer executar
+		;cmp [info+ebx], byte 's'
+		;	je	cmp [info+ebx+1], byte 'l'
+		;	je	cmp [info+ebx+2], byte 'v'
+		;	je	cmp [info+ebx+3], byte 'r'
+		;	je	jmp salvar
+;
 
-		cmp [info+ebx], byte 's'
-			je	cmp [info+ebx+1], byte 'a'
-			je	cmp [info+ebx+2], byte 'i'
-			je	cmp [info+ebx+3], byte 'r'
-			je	jmp sair
+;		cmp [info+ebx], byte 's'
+;			je	cmp [info+ebx+1], byte 'a'
+;			je	cmp [info+ebx+2], byte 'i'
+;			je	cmp [info+ebx+3], byte 'r'
+;			je	jmp sair
+;
+;		cmp [info+ebx], byte 'c'
+;			je	cmp [info+ebx+1], byte 'p'
+;			je	cmp [info+ebx+2], byte 'a'
+;			je	cmp [info+ebx+3], byte 'l'
+;			je	jmp contar
 
-		cmp [info+ebx], byte 'c'
-			je	cmp [info+ebx+1], byte 'p'
-			je	cmp [info+ebx+2], byte 'a'
-			je	cmp [info+ebx+3], byte 'l'
-			je	jmp contar
-
-	.sair
+	.sair:
 		ret
 
-	.contar
+	.contar:
 		mov	eax, 4	         		;escreve
 		mov	ebx, 1		        ; na tela
 		mov	ecx,  mstemp		; msg
 		mov	edx, lentemp	        ;tamanho
 		int 80h
 
-	.salvar
+	.salvar:
 		
-		mov	[tamanho_texto], ebx			
+		mov	[tamanhotexto], ebx			
 		mov	eax, 4
-		mov	ebx, [id_arquivo]
+		mov	ebx, [idarquivo]
 		mov	ecx, buffer
-		mov	edx, [tamanho_arquivo] ;salvo o que ja havia anteriormente, qdo o arquivo foi lido
+		mov	edx, [tamanhoarquivo] ;salvo o que ja havia anteriormente, qdo o arquivo foi lido
 		
 		mov	eax, 4
-		mov	ebx, [id_arquivo]
+		mov	ebx, [idarquivo]
 		mov	ecx, info
-		mov	edx, [tamanho_texto]		; salvo o que o usuario digitou
+		mov	edx, [tamanhotexto]		; salvo o que o usuario digitou
 
 		int 80h
 		ret	 
 
-
-
-
-
-fim
+fim:
 	mov eax, 1
 	mov ebx, 0
 	int 80h
