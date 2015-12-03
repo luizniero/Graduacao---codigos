@@ -6,63 +6,44 @@ section .bss
 	nome_arq	resb	30	; nome do arquivo dado pelo usuario no argumento
 	info		resb	3000	; variavel para armazenar o conteudo do arquivo
 	id_in		resb	30	;id para manipular o arquivo
-
+	
 
 section .text
   global _start:
   
 _start:
-	call Pegar_argumento
-	call Gera_arquivo
-	call Entrada_dados
+	call .Pegar_argumento
 	
-	;=================================== encerra o programa ========================================
+	
+.Pegar_argumento: ;================================================================================
+	pop	eax
+	pop	ecx
+	pop	ecx
+	cmp	ecx,0
+	je	exit
+	mov	edx,0
+	
+.strlen:
+	mov	al,[ecx+edx]
+	mov	[nome_arq+edx],al
+	cmp	[ecx+edx], byte 0
+	je	home
+	inc	edx
+	jmp	.strlen
+
+home:
+
+ 	
+ 	 mov eax, 8 	;==============cria o arquivo==================
+  	 mov ebx, nome_arq
+   	 mov ecx, 0777q
+   	 int 80h
+
+
+
+
+exit:
+
 	mov eax,1
 	mov ebx,0
 	int 80h
-
-.Pegar_argumento: ;================================================================================
-	Pop	eax
-  	Pop	eax
-  	Pop	eax
-  	mov	[nome_arq], eax
-  	
-
- .Gera_arquivo: ;================================================================================
-  	mov	eax, 5		;sys open
-	mov	ebx, nome_arq
-	mov	ecx, 0 		;modo de acesso: somente leitura
-	mov	edx, 0777q
-	int 	80h
-	mov	[id_in], eax
-
-
-.ler_arquivo: ;================================================================================
-	mov	eax,3		;sys read
-	mov	ebx,[id_in]
-	mov	ecx,info
-	mov	edx,400
-	int	80h
-
-
-.criar_arquivo	;================================================================================                ;sys create
-	mov eax, 		 ;cria o arquivo
-    	mov ebx, nome_arq
-    	mov ecx, 0777q
-    	int 80h
-    	ret	
-
-
-
-.entrada_dados
-	WHILE true
-
-
-
-
-
-
-
-
-
-	ENDW
