@@ -14,19 +14,21 @@ section .text
 _start:
 	call Pegar_argumento
 	call Gera_arquivo
+	call Entrada_dados
 	
-	; encerra o programa ========================================
+	;=================================== encerra o programa ========================================
 	mov eax,1
 	mov ebx,0
 	int 80h
 
-.Pegar_argumento:
+.Pegar_argumento: ;================================================================================
 	Pop	eax
   	Pop	eax
   	Pop	eax
   	mov	[nome_arq], eax
   	
- .Gera_arquivo:
+
+ .Gera_arquivo: ;================================================================================
   	mov	eax, 5		;sys open
 	mov	ebx, nome_arq
 	mov	ecx, 0 		;modo de acesso: somente leitura
@@ -34,16 +36,33 @@ _start:
 	int 	80h
 	mov	[id_in], eax
 
-.ler_arquivo:
+
+.ler_arquivo: ;================================================================================
 	mov	eax,3		;sys read
 	mov	ebx,[id_in]
 	mov	ecx,info
 	mov	edx,400
 	int	80h
 
-.criar_arquivo			;sys create
+
+.criar_arquivo	;================================================================================                ;sys create
 	mov eax, 		 ;cria o arquivo
     	mov ebx, nome_arq
     	mov ecx, 0777q
     	int 80h
     	ret	
+
+
+
+.entrada_dados
+	WHILE true
+
+
+
+
+
+
+
+
+
+	ENDW
