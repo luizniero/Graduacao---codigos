@@ -1,0 +1,47 @@
+
+section .data
+
+
+section .bss
+	nome_arq	resb	30	; nome do arquivo dado pelo usuario no argumento
+	info		resb	3000	; variavel para armazenar o conteudo do arquivo
+	
+
+
+section .text
+  global _start:
+  
+_start:
+	call Pegar_argumento
+	call Gera_arquivo
+
+
+.Pegar_argumento:
+	Pop	eax
+  	Pop	eax
+  	Pop	eax
+  	mov	[nome_arq], eax
+  	
+ .Gera_arquivo
+ 
+ 	mov	eax, 5
+	mov	ebx, nome_arq
+	mov	ecx, 0 		;modo de acesso: somente leitura
+	mov	edx, 0777q
+	int 	80h
+	
+	
+.ler_arquivo:
+	mov	eax,3
+	mov	ebx,[id_in]
+	mov	ecx,info
+	mov	edx,400
+	int	80h
+	ret
+
+.criar_arquivo
+	mov eax, 8 ;cria o arquivo
+    	mov ebx, nome_arq
+    	mov ecx, 0777q
+    	int 80h
+    	ret	
