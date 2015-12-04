@@ -1,0 +1,21 @@
+function [y_interp,b] = newton_interp(x,y,x_interp)
+    n = size(x,2);
+    
+    b = zeros(n,n);
+    
+    for j=1:n
+        b(j,1) = y(j);
+    end
+    
+    for j=2:n
+        for i=1:n-j+1
+            b(i,j) = (b(i+1,j-1) - b(i,j-1))/(x(i+j-1)-x(i));
+        end
+    end
+    y_interp = b(1,1);
+    xt = 1;
+    for j=1:n-1
+        xt = xt*(x_interp-x(j));
+        y_interp = y_interp + b(1,j+1)*xt;
+    end
+endfunction
