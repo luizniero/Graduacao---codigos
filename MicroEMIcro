@@ -1,24 +1,17 @@
 list p=16F873A
 
 ;Bloco com declarações de variaveis nos locais de memória, para não ter que ficar trabalhando com endereços no código
-indf		equ	00h
-pcl			equ 02h
+indf		equ 00h
+pcl		equ 02h
 status		equ 03h
-fsr			equ 04h
+fsr		equ 04h
 porta		equ 05h
-trisa		equ	05h
-portb		equ	06h
-trisb		equ	06h
-cont		equ	40h
-cont2		equ	41h
-limite		equ	42h
-
-
-aux1		equ 42h
-aux2		equ 43h
-trocou		equ 44h
-
-
+trisa		equ 05h
+portb		equ 06h
+trisb		equ 06h
+cont		equ 47h
+aux1		equ 48h
+aux2		equ 49h
 
 org 00  ;programa começa aqui
 
