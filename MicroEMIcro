@@ -10,15 +10,21 @@ trisa		equ	05h
 portb		equ	06h
 trisb		equ	06h
 cont		equ	40h
-aux1		equ 41h
-aux2		equ 42h
-trocou		equ 43h
+cont2		equ	41h
+limite		equ	42h
+
+
+aux1		equ 42h
+aux2		equ 43h
+trocou		equ 44h
 
 
 
 org 00  ;programa começa aqui
 
-;Bloco que diz às portas como elas irão trabalhar
+
+
+; ==================================Bloco que diz às portas como elas irão trabalhar================================
 start
 	bsf status,5		;Seleciona banco 1
     movlw B'01111111'	;Reg. W recebe 1 	
@@ -26,73 +32,96 @@ start
     movlw B'00000000'	;Reg. W recebe 0
     movwf trisb			;Porta B passa a trbalhar somente com SAÍDA
     bcf status,5 		;Seleciona banco 0
-
+;====================================================================================================================
 	
-;Entrada de dados                         e sempre que eu escrever indf seria como escrever memória[fsr]
-
+	
+	
+	
+; ========================================Entrada de dados=========================================================  
 	movlw 20h
 	movwf fsr			; FSR = 20h
-	movlw D'5'
-	movwf cont
+	movlw D'32'			
+	movwf cont			;Contador comeca em 32, e vai até 1.
 	
-LoopInput	
+LoopInput		
 	movlw 	porta 		; valor da porta A vai para W
 	movwf 	indf		; MEMORIA[fsr] recebe valor da porta
 	clrf 	porta		; limpo porta
 	incf	fsr,01h		; pulo para o proximo endereco da memoria, para continuar armazenando os valores
-	decfsz	cont, 01h 	;Decremento o contador.  Se for igual a zero, terminou a entrada (pula a prox se conta= 0)
-	goto 	LoopInput 	;Volto para Loop para ler o prox valor de entrada
+	decfsz	cont, 01h 	; Decremento o contador.  Se for igual a zero, terminou a entrada (pula a prox se cont = 0)
+	goto 	LoopInput 	; Volto para Loop para ler o prox valor de entrada
 	goto	bubble		; Enquanto contador não for zero, continua no loop
-	
-bubble
-	movlw 00h; w = 0 = false
-    movwf trocou; trocou = false
-    movlw D'5' ;w = 32 
-    movwf cont; cont = w = 32
-    movlw 20h; w = 20h
-    movwf fsr; fsr = w = 20h
-	
-	
-LoopBubble 
-	movlw indf; w = mem[fsr]
-    movwf aux1; aux1 = w
-    incf fsr,01h;; fsr++ (fsr')
-    movlw indf; w = mem[fsr']
-    movwf aux2; aux2 = w
-    decfsz cont,01h; cont-- (pula próxima se cont for 0)
-    goto comparar; comparar(aux1,aux2)
-    goto fim; fim()
-;
-comparar
-	movfw aux1; w = aux1
-    subwf aux2; aux2 = aux2 - w = aux2 - aux1
-    btfss status,0; aux1>aux2? (pula se bit de carry for 0)
-    goto troca; sim -> troca()
-    ;não, segue
-    goto LoopBubble; volta ao inicio
-;
-troca
 
-	movlw B'11111111'; w = 255
-    movwf trocou; trocou = 255 = true
-    movfw indf; w = mem[fsr']
-    movwf aux2; aux2 = w = mem[fsr']
-    decf fsr,01h; fsr'-- (fsr)
-    movfw aux2; w = aux2
-    movwf indf; mem[fsr] = w = aux2
-    incf fsr,01h; fsr++ (fsr')
-    movfw aux1; w = aux1
-    movwf indf; mem[fsr'] = w = aux1
-    ;fsr' -> fsr
-    goto LoopBubble; volta para o loop
-;
-;   
-fim btfsc trocou,0; ocorreu troca? (pula se bit 0 de troca não está setado)
-    goto bubble; sim (verifica vetor novamente)
-    ;não ocorreu (vetor está ordenado)
-    end
-;
- 
+;======================================Fim da entrada de dados====================================================	
+
+
+;======================================SELECTION SORT ============================================================
+	
+; Resumo: comparo, sempre o espaco n1 do vetor com valor dos espaços n1+1 até  o fim do vetor. 
+; se o valor do espaço fixado n1 for maior que o valor do espaço n1+n, eu troco os dois de lugar,
+; sempre que o valor n1 é maior que o comparado, eu inverto os 2.
+
+
+
+
+Ordenacao
+	movlw 20h
+	movwf fsr  ; fsr = 20.
+
+forExterno	
+	movlw	1h
+	movwf	cont		; contador recebe 1 novamente	
+	movlw fsr; w = fsr (espaco dememoria onde estamos [vetor])
+    subwf D'57'; w = fsr - 57 (57 = 20h (posicao inicial) + 31 (ultimo elemento do vetor)
+    btfss status,0; fsr > 57?
+	goto Imprime; ;sim
+    goto forInterno; não	
+  
+
+forInterno	
+	movlw cont
+	subwf D'31' 
+	btfss status, 0 ;  cont = 32?  Enquanto cont for menor que 32, vou fazendo
+	goto Compara			;cont < 32 (sim) - continuo para a ordenacao
+	goto forExterno			; cont = 32.  Volto pro for externo para ir pro proximoi espaco do vetor.
+	goto forInterno			; quando compara retornar, volto para o inicio desta rotina.
+
+Compara
+	movlw indf		;w recebe o valor que esta em memoria[fsr]
+	movwf aux1		;aux1 recebe o valor da posicao do vetor a ser comparada.
+	incf fsr, 01h	;vou para a proxima posicao do vetor
+	movlw indf		;coloco seu valor em w (W = Memoria[fsr])
+	movwf aux2		; coloco esse valor em aux2.
+	movlw aux1		; w = aux1
+    subwf aux2		; aux2 = aux2 - w = aux2 - aux1
+    btfss status,0	; aux1>aux2? (pula se bit de carry for 0)
+    goto troca		; sim -> troca()
+    movlw cont		;incremento cont e volto para o forInterno
+	incf  w, 01h
+	movwf cont
+	Return	
+		
+Troca
+	movlw	aux2
+	movwf	indf	;memoria[fsr] recebe memoria[fsr + 1]
+	incf	fsr, 01h
+	movlw	aux1
+	movwf	indf	;memoria[fsr+1] recebe memoria[fsr]
+	Return
+	
+;======================================FIM DO SELECTION SORT ========================================================	
+	
+
+	
+	
+
+	
+	
+	
+	
+	
+	
+;======================================Saída de dados (imprime) ====================================================	
 Imprime
 	movlw 20h
 	movwf fsr
@@ -105,5 +134,9 @@ LoopImpress
 	clr		portb		; após isso, limpo a porta banco
 	incf	fsr, 01h	; pulo para  o proximo endereco da memoria, para continuar imprimindo os valores em portb
 	decfsz	cont, 01h ; ;Decremento o contador.  Se for igual a zero, a saída, e, portando, o programa.
-	goto LoopImpress			; pula esta linha se for igual a zero, senão, continua imprimindo
-	end
+	goto LoopImpress	; pula esta linha se for igual a zero, senão, continua imprimindo
+	
+;======================================Fim da Saída de dados ====================================================
+	
+	
+end ;FIM DO PROGRAMA
